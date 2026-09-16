@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Garrott Waldron — Player Profile</title>
+<meta name="description" content="Garrott Waldron's gamified player-profile portfolio — skill trees, quest log and achievements.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#f5f7fb; --surface:#ffffff; --surface-2:#eef1f7; --border:#dbe1ee;
+    --text:#121826; --text-dim:#5b6b85; --text-faint:#8794aa;
+    --accent:#0f9c86; --accent-ink:#04382f; --accent-soft:#e3f6f1;
+    --gold:#a5710a; --gold-soft:#fbeed7; --gold-ink:#3a2700;
+    --locked:#c3cbdb;
+    --shadow: 0 1px 2px rgba(18,24,38,.05), 0 10px 26px rgba(18,24,38,.07);
+    --radius: 14px;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg:#080b12; --surface:#111726; --surface-2:#161e33; --border:#26304f;
+      --text:#eaf0fa; --text-dim:#96a3bd; --text-faint:#5c6785;
+      --accent:#37e0c4; --accent-ink:#03231d; --accent-soft:#0f2b27;
+      --gold:#f5b942; --gold-soft:#2a2110; --gold-ink:#1c1400;
+      --locked:#333f60;
+      --shadow: 0 1px 2px rgba(0,0,0,.35), 0 16px 40px rgba(0,0,0,.4);
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#080b12; --surface:#111726; --surface-2:#161e33; --border:#26304f;
+    --text:#eaf0fa; --text-dim:#96a3bd; --text-faint:#5c6785;
+    --accent:#37e0c4; --accent-ink:#03231d; --accent-soft:#0f2b27;
+    --gold:#f5b942; --gold-soft:#2a2110; --gold-ink:#1c1400;
+    --locked:#333f60;
+    --shadow: 0 1px 2px rgba(0,0,0,.35), 0 16px 40px rgba(0,0,0,.4);
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0; background:var(--bg); color:var(--text);
+    font-family:'Inter',system-ui,-apple-system,sans-serif;
+    padding-inline:18px; -webkit-font-smoothing:antialiased;
+    background-image:
+      radial-gradient(ellipse 900px 500px at 15% -10%, color-mix(in srgb, var(--accent) 10%, transparent), transparent),
+      radial-gradient(ellipse 700px 500px at 100% 10%, color-mix(in srgb, var(--gold) 8%, transparent), transparent);
+    background-attachment:fixed;
+  }
+  img{max-width:100%;}
+  [hidden]{display:none!important;}
+  a{color:inherit;}
+  h1,h2,h3{font-family:'Space Grotesk',system-ui,sans-serif; letter-spacing:-.01em; text-wrap:balance; margin:0;}
+  .mono{font-family:'JetBrains Mono',ui-monospace,monospace;}
+  .wrap{max-width:1080px; margin:0 auto;}
+  .eyebrow{
+    font-family:'JetBrains Mono',monospace; font-size:11.5px; font-weight:600;
+    letter-spacing:.14em; text-transform:uppercase; color:var(--accent);
+  }
+  section{padding-block:54px; border-top:1px solid var(--border);}
+  .section-head{margin-bottom:30px;}
+  .section-head h2{font-size:clamp(22px,4vw,30px); margin-top:8px;}
+  .section-head p.sub{color:var(--text-dim); margin-top:8px; font-size:14.5px; max-width:560px;}
+
+  /* HUD */
+  .hud{
+    position:sticky; top:0; z-index:60; margin-inline:-18px; padding-inline:18px;
+    background:color-mix(in srgb, var(--bg) 80%, transparent); backdrop-filter:blur(10px);
+    border-bottom:1px solid var(--border);
+  }
+  .hud .wrap{display:flex; align-items:center; justify-content:space-between; height:60px; gap:14px;}
+  .hud-brand{display:flex; align-items:center; gap:9px; font-family:'JetBrains Mono'; font-weight:600; font-size:13px; letter-spacing:.04em;}
+  .hud-dot{width:8px; height:8px; border-radius:50%; background:var(--accent); box-shadow:0 0 10px var(--accent);}
+  .hud-links{display:flex; align-items:center; gap:20px; font-size:13px; font-weight:600; color:var(--text-dim);}
+  .hud-links a{text-decoration:none; transition:color .15s;}
+  .hud-links a:hover{color:var(--accent);}
+  .btn{
+    display:inline-flex; align-items:center; gap:8px; font-weight:700; font-size:13px;
+    padding:10px 18px; border-radius:8px; text-decoration:none; border:1px solid transparent;
+    cursor:pointer; transition:transform .15s, box-shadow .15s; font-family:'JetBrains Mono'; letter-spacing:.03em;
+  }
+  .btn:hover{transform:translateY(-1px);}
+  .btn-primary{background:var(--accent); color:var(--accent-ink);}
+  .btn-primary:hover{box-shadow:0 0 22px color-mix(in srgb, var(--accent) 55%, transparent);}
+  .btn-ghost{border-color:var(--border); color:var(--text);}
+  .navmenu-toggle{display:none; background:none; border:1px solid var(--border); border-radius:8px; padding:8px 10px; color:var(--text);}
+
+  /* Title screen */
+  .title-screen{
+    padding-block:80px 60px; text-align:center; position:relative; overflow:hidden;
+  }
+  .glow-ring{
+    position:absolute; inset:auto; top:-120px; left:50%; transform:translateX(-50%);
+    width:520px; height:520px; border-radius:50%;
+    background:radial-gradient(circle, color-mix(in srgb, var(--accent) 16%, transparent), transparent 70%);
+    filter:blur(10px); pointer-events:none; animation:pulse 5s ease-in-out infinite;
+  }
+  @keyframes pulse{ 0%,100%{opacity:.55; transform:translateX(-50%) scale(1);} 50%{opacity:.9; transform:translateX(-50%) scale(1.06);} }
+  .title-tags{display:flex; gap:8px; justify-content:center; flex-wrap:wrap; margin-bottom:24px; position:relative;}
+  .tag{
+    font-family:'JetBrains Mono'; font-size:11px; font-weight:600; letter-spacing:.08em;
+    padding:6px 12px; border-radius:999px; background:var(--surface-2); border:1px solid var(--border); color:var(--text-dim);
+  }
+  h1.title-name{font-size:clamp(40px,8vw,72px); font-weight:700; line-height:1; position:relative;}
+  .title-name .accentword{color:var(--accent);}
+  .title-sub{font-family:'JetBrains Mono'; font-size:clamp(13px,2vw,16px); letter-spacing:.12em; color:var(--text-dim); margin-top:16px; text-transform:uppercase;}
+  .enter-btn{
+    margin-top:38px; display:inline-flex; align-items:center; gap:10px; font-family:'JetBrains Mono'; font-weight:700;
+    font-size:14px; letter-spacing:.1em; padding:16px 34px; border-radius:10px; text-decoration:none;
+    background:var(--accent); color:var(--accent-ink); box-shadow:0 0 30px color-mix(in srgb, var(--accent) 45%, transparent);
+    text-transform:uppercase; position:relative; animation:float 2.6s ease-in-out infinite;
+  }
+  @keyframes float{ 0%,100%{transform:translateY(0);} 50%{transform:translateY(-4px);} }
+  @media (prefers-reduced-motion: reduce){ .glow-ring, .enter-btn{ animation:none; } html{scroll-behavior:auto;} }
+  .title-hint{margin-top:14px; font-size:12.5px; color:var(--text-faint);}
+
+  /* Player card */
+  .card-panel{
+    background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:30px;
+    box-shadow:var(--shadow);
+  }
+  .pc-grid{display:grid; grid-template-columns:1fr 1fr; gap:26px;}
+  .pc-row{margin-bottom:18px;}
+  .pc-row:last-child{margin-bottom:0;}
+  .pc-label{font-family:'JetBrains Mono'; font-size:11px; letter-spacing:.1em; color:var(--text-faint); text-transform:uppercase; margin-bottom:8px;}
+  .pc-value{font-size:16px; font-weight:600;}
+  .pill-row{display:flex; flex-wrap:wrap; gap:7px;}
+  .pill{font-size:12.5px; font-weight:600; padding:6px 12px; border-radius:999px; background:var(--accent-soft); color:var(--accent); border:1px solid color-mix(in srgb, var(--accent) 35%, transparent);}
+  .pill.trait{background:var(--surface-2); color:var(--text-dim); border-color:var(--border);}
+  .badge-since{
+    display:inline-flex; align-items:center; gap:8px; margin-top:6px; font-family:'JetBrains Mono'; font-size:12px;
+    color:var(--gold); background:var(--gold-soft); border:1px solid color-mix(in srgb, var(--gold) 40%, transparent);
+    padding:7px 13px; border-radius:999px; font-weight:700; letter-spacing:.04em;
+  }
+
+  /* Skill trees */
+  .tree-grid{display:grid; grid-template-columns:repeat(auto-fit,minmax(280px,1fr)); gap:16px;}
+  .tree-card{background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:22px; box-shadow:var(--shadow);}
+  .tree-card h3{font-size:15.5px;}
+  .tree-card .tsub{font-size:12px; color:var(--text-faint); margin-top:2px; margin-bottom:16px;}
+  .node-row{display:flex; flex-wrap:wrap; gap:7px;}
+  .node{
+    font-size:12.5px; font-weight:600; padding:6px 11px; border-radius:7px;
+    background:var(--accent-soft); color:var(--accent); border:1px solid color-mix(in srgb, var(--accent) 30%, transparent);
+  }
+  .node.locked{
+    background:transparent; color:var(--text-faint); border:1px dashed var(--locked); font-weight:500;
+  }
+  .node.locked::before{content:'🔒 '; font-size:10px;}
+  .tree-divider{border:none; border-top:1px dashed var(--border); margin:14px 0;}
+  .tree-future-label{font-family:'JetBrains Mono'; font-size:10.5px; letter-spacing:.08em; color:var(--text-faint); text-transform:uppercase; margin-bottom:8px;}
+
+  /* Quest log */
+  .quest{
+    background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); margin-bottom:14px;
+    box-shadow:var(--shadow); overflow:hidden;
+  }
+  .quest summary{
+    list-style:none; cursor:pointer; padding:20px 24px; display:flex; align-items:center; justify-content:space-between; gap:16px;
+  }
+  .quest summary::-webkit-details-marker{display:none;}
+  .quest-head-l{display:flex; align-items:center; gap:16px;}
+  .quest-icon{
+    width:38px; height:38px; border-radius:9px; background:var(--gold-soft); color:var(--gold); display:flex;
+    align-items:center; justify-content:center; font-weight:700; font-family:'JetBrains Mono'; flex:none; font-size:15px;
+  }
+  .quest h3{font-size:16px;}
+  .quest .qmeta{font-size:12.5px; color:var(--text-faint); margin-top:2px;}
+  .quest .chevron{transition:transform .2s; color:var(--text-faint); font-family:'JetBrains Mono';}
+  .quest[open] .chevron{transform:rotate(180deg);}
+  .quest-body{padding:0 24px 24px 78px;}
+  .quest-body ul{margin:0; padding-left:18px; color:var(--text-dim); font-size:14px; line-height:1.65;}
+  .quest-body li{margin-bottom:6px;}
+  .quest-skills{margin-top:14px; display:flex; flex-wrap:wrap; gap:6px;}
+  .quest-skills span{font-size:11.5px; font-weight:600; padding:5px 10px; border-radius:6px; background:var(--surface-2); color:var(--text-dim); border:1px solid var(--border);}
+  .quest.minor summary{opacity:.72;}
+
+  /* side quests */
+  .sq-grid{display:grid; grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); gap:16px;}
+  .sq-card{background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:20px; box-shadow:var(--shadow); display:flex; flex-direction:column; gap:10px;}
+  .sq-card .sqtag{font-family:'JetBrains Mono'; font-size:10px; letter-spacing:.08em; color:var(--gold); text-transform:uppercase;}
+  .sq-card h4{font-size:15.5px; font-weight:600;}
+  .sq-card p{font-size:13.5px; color:var(--text-dim); line-height:1.55; margin:0;}
+  .sq-card .live{font-size:12.5px; font-weight:600; color:var(--accent); text-decoration:none;}
+  .sq-card .skills-gained{margin-top:auto; padding-top:8px; border-top:1px solid var(--border); font-size:11.5px; color:var(--text-faint);}
+
+  /* achievements */
+  .ach-grid{display:grid; grid-template-columns:repeat(auto-fit,minmax(230px,1fr)); gap:16px;}
+  .ach-card{
+    background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:20px;
+    box-shadow:var(--shadow); display:flex; gap:14px; align-items:flex-start;
+    opacity:0; transform:scale(.92) translateY(6px); transition:opacity .45s ease, transform .45s ease;
+  }
+  .ach-card.unlocked{opacity:1; transform:none;}
+  .ach-badge{
+    width:44px; height:44px; border-radius:10px; flex:none; display:flex; align-items:center; justify-content:center;
+    background:var(--gold-soft); color:var(--gold); font-size:19px; border:1px solid color-mix(in srgb, var(--gold) 40%, transparent);
+  }
+  .ach-card h4{font-size:14px; font-family:'JetBrains Mono'; letter-spacing:.03em; margin-bottom:5px;}
+  .ach-card p{font-size:13px; color:var(--text-dim); margin:0; line-height:1.5;}
+  @media (prefers-reduced-motion: reduce){ .ach-card{opacity:1; transform:none; transition:none;} }
+
+  footer{padding-block:60px 50px; text-align:center;}
+  .contact-row{display:flex; gap:14px; justify-content:center; flex-wrap:wrap; margin-top:26px;}
+  .contact-row a.link{font-size:14px; color:var(--text-dim); text-decoration:none; border-bottom:1px dashed var(--border); padding-bottom:2px;}
+  .foot-note{margin-top:40px; font-size:12.5px; color:var(--text-faint);}
+
+  @media (max-width:760px){
+    .hud-links{position:fixed; inset:60px 0 auto 0; background:var(--bg); border-bottom:1px solid var(--border);
+      flex-direction:column; align-items:flex-start; padding:18px 20px 22px; gap:16px; transform:translateY(-8px); opacity:0; pointer-events:none; transition:.15s;}
+    .hud-links.open{transform:none; opacity:1; pointer-events:auto;}
+    .navmenu-toggle{display:inline-flex;}
+    .pc-grid{grid-template-columns:1fr;}
+    .quest-body{padding-left:24px;}
+  }
+</style>
+</head>
+<body>
+
+<div class="hud">
+  <div class="wrap">
+    <div class="hud-brand"><span class="hud-dot"></span> GARROTT.WALDRON <span style="color:var(--text-faint); font-weight:500;">// player profile</span></div>
+    <div class="hud-links" id="navlinks">
+      <a href="#player-card">Profile</a>
+      <a href="#skill-trees">Skill Trees</a>
+      <a href="#quest-log">Quest Log</a>
+      <a href="#side-quests">Side Quests</a>
+      <a href="#achievements">Achievements</a>
+      <a href="#contact">Contact</a>
+      <a class="btn btn-primary" href="resume.pdf" target="_blank" rel="noopener">↓ Resume</a>
+    </div>
+    <button class="navmenu-toggle" id="navToggle" aria-label="Toggle menu">☰</button>
+  </div>
+</div>
+
+<div class="title-screen wrap">
+  <div class="glow-ring" aria-hidden="true"></div>
+  <div class="title-tags">
+    <span class="tag">DIGITAL OPERATIONS</span><span class="tag">E-COMMERCE</span><span class="tag">SYSTEMS BUILDER</span>
+  </div>
+  <h1 class="title-name">GARROTT <span class="accentword">WALDRON</span></h1>
+  <div class="title-sub">Digital Operations Generalist · Active Since 2018</div>
+  <a class="enter-btn" href="#player-card">Enter Profile ↓</a>
+  <div class="title-hint">Or jump straight to any section from the bar above — nothing here is gated.</div>
+</div>
+
+<section id="player-card" class="wrap">
+  <div class="section-head">
+    <div class="eyebrow">Player Card</div>
+    <h2>Class overview</h2>
+  </div>
+  <div class="card-panel">
+    <div class="pc-grid">
+      <div>
+        <div class="pc-row">
+          <div class="pc-label">Class</div>
+          <div class="pc-value">Digital Operations Generalist</div>
+        </div>
+        <div class="pc-row">
+          <div class="pc-label">Specializations</div>
+          <div class="pill-row">
+            <span class="pill">E-commerce</span><span class="pill">Systems &amp; Data</span><span class="pill">AI &amp; Automation</span>
+            <span class="pill">Technical Ops</span><span class="pill">Program Coordination</span>
+          </div>
+        </div>
+      </div>
+      <div>
+        <div class="pc-row">
+          <div class="pc-label">Traits</div>
+          <div class="pill-row">
+            <span class="pill trait">Problem Solver</span><span class="pill trait">Self-Taught</span><span class="pill trait">Research-Driven</span>
+            <span class="pill trait">Systems Thinker</span><span class="pill trait">Adaptable</span>
+          </div>
+        </div>
+        <div class="pc-row">
+          <div class="pc-label">Status</div>
+          <span class="badge-since">★ Active since 2018</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="skill-trees" class="wrap">
+  <div class="section-head">
+    <div class="eyebrow">Skill Trees</div>
+    <h2>Six trees, built through real work</h2>
+    <p class="sub">Solid nodes are verified, hands-on experience. Dashed, locked nodes are next up — named skills being actively learned, never claimed as current.</p>
+  </div>
+  <div class="tree-grid">
+
+    <div class="tree-card">
+      <h3>🛒 E-Commerce &amp; Marketplace Ops</h3>
+      <div class="tsub">Cayce Mill Supply · independent reselling · MajorTeesDesigns</div>
+      <div class="node-row">
+        <span class="node">Product Research</span><span class="node">Marketplace Listings</span><span class="node">eBay</span>
+        <span class="node">Shopify</span><span class="node">Etsy</span><span class="node">Printify</span><span class="node">Product Data</span>
+        <span class="node">Inventory</span><span class="node">Pricing &amp; Comps</span><span class="node">Fulfillment</span><span class="node">Merchandising</span>
+      </div>
+      <hr class="tree-divider">
+      <div class="tree-future-label">Future unlocks</div>
+      <div class="node-row"><span class="node locked">TikTok Shop</span><span class="node locked">Marketplace Analytics</span></div>
+    </div>
+
+    <div class="tree-card">
+      <h3>📊 Systems &amp; Data</h3>
+      <div class="tsub">Fantasy League Engine · spreadsheet systems</div>
+      <div class="node-row">
+        <span class="node">Excel</span><span class="node">Google Sheets</span><span class="node">Logic / Scoring Design</span>
+        <span class="node">Data Organization</span><span class="node">QA &amp; Troubleshooting</span><span class="node">Reporting</span>
+      </div>
+      <hr class="tree-divider">
+      <div class="tree-future-label">Future unlocks</div>
+      <div class="node-row"><span class="node locked">SQL</span><span class="node locked">Power BI / Looker Studio</span><span class="node locked">GA4</span></div>
+    </div>
+
+    <div class="tree-card">
+      <h3>🤖 AI &amp; Automation</h3>
+      <div class="tsub">Daily driver across every other tree</div>
+      <div class="node-row">
+        <span class="node">AI-Assisted Research</span><span class="node">Prompt Iteration</span><span class="node">Workflow Design</span><span class="node">Process Improvement</span>
+      </div>
+      <hr class="tree-divider">
+      <div class="tree-future-label">Future unlocks</div>
+      <div class="node-row"><span class="node locked">Zapier</span><span class="node locked">Make</span><span class="node locked">AI Agents</span><span class="node locked">APIs</span></div>
+    </div>
+
+    <div class="tree-card">
+      <h3>🎨 Digital Content &amp; Design</h3>
+      <div class="tsub">Daily graphics at Cayce Mill · ongoing POD design</div>
+      <div class="node-row">
+        <span class="node">Photoshop</span><span class="node">Canva</span><span class="node">CapCut</span><span class="node">PowerPoint</span><span class="node">Acrobat</span>
+      </div>
+      <hr class="tree-divider">
+      <div class="tree-future-label">Future unlocks</div>
+      <div class="node-row"><span class="node locked">After Effects (advanced)</span><span class="node locked">Basic SEO</span></div>
+    </div>
+
+    <div class="tree-card">
+      <h3>🛠️ Technical Operations</h3>
+      <div class="tsub">Dedicated game-server hosting &amp; troubleshooting</div>
+      <div class="node-row">
+        <span class="node">PC &amp; Network Troubleshooting</span><span class="node">Streaming / AV (OBS)</span><span class="node">Server Hosting &amp; Uptime</span>
+      </div>
+      <hr class="tree-divider">
+      <div class="tree-future-label">Future unlocks</div>
+      <div class="node-row"><span class="node locked">Expanded Home-Lab Automation</span></div>
+    </div>
+
+    <div class="tree-card">
+      <h3>🧭 Program &amp; Project Coordination</h3>
+      <div class="tsub">5-county tornado recovery program</div>
+      <div class="node-row">
+        <span class="node">Needs Assessment</span><span class="node">Cross-Org Collaboration</span><span class="node">Resource Coordination</span>
+        <span class="node">Stakeholder Communication</span><span class="node">Presentation Development</span><span class="node">Documentation</span>
+      </div>
+      <hr class="tree-divider">
+      <div class="tree-future-label">Future unlocks</div>
+      <div class="node-row"><span class="node locked">Asana / Monday / ClickUp</span><span class="node locked">Formal PM Terminology</span></div>
+    </div>
+
+  </div>
+</section>
+
+<section id="quest-log" class="wrap">
+  <div class="section-head">
+    <div class="eyebrow">Quest Log</div>
+    <h2>Work history</h2>
+    <p class="sub">Click a quest to expand it.</p>
+  </div>
+
+  <details class="quest" open>
+    <summary>
+      <div class="quest-head-l">
+        <div class="quest-icon">01</div>
+        <div>
+          <h3>Tornado Recovery Program</h3>
+          <div class="qmeta">Pennyroyal Mental Health Center · 5 counties · 7-person team · May 2022 – Apr 2023</div>
+        </div>
+      </div>
+      <span class="chevron">▾</span>
+    </summary>
+    <div class="quest-body">
+      <ul>
+        <li>Supported Western Kentucky tornado recovery, assessing needs and connecting residents with housing, food, appliance and recovery resources.</li>
+        <li>Participated in 3 long-term recovery groups, coordinating partner programs and unmet-needs support across community organizations.</li>
+        <li>Built a comprehensive FEMA-facing PowerPoint on program impact, community needs and the role of mental-health services in disaster recovery.</li>
+        <li>Helped establish 3 support groups for residents coping with bereavement, anxiety and severe-weather-related stress.</li>
+      </ul>
+      <div class="quest-skills">
+        <span>Program Coordination</span><span>Stakeholder Communication</span><span>Crisis Response</span><span>Presentation Development</span>
+      </div>
+    </div>
+  </details>
+
+  <details class="quest">
+    <summary>
+      <div class="quest-head-l">
+        <div class="quest-icon">02</div>
+        <div>
+          <h3>Web Store Operations</h3>
+          <div class="qmeta">Cayce Mill Supply Co. · Aug 2018 – Apr 2020</div>
+        </div>
+      </div>
+      <span class="chevron">▾</span>
+    </summary>
+    <div class="quest-body">
+      <ul>
+        <li>Managed the full web-store product catalog, from part-number research through spreadsheet organization and publication.</li>
+        <li>Created and maintained eBay and Shopify listings to expand product visibility across online sales channels.</li>
+        <li>Produced daily Facebook and Instagram graphics in Adobe Photoshop for product awareness and digital merchandising.</li>
+        <li>Maintained accurate product, visual and inventory information across online and showroom environments.</li>
+      </ul>
+      <div class="quest-skills">
+        <span>E-commerce</span><span>Catalog Management</span><span>Digital Marketing</span>
+      </div>
+    </div>
+  </details>
+
+  <details class="quest minor">
+    <summary>
+      <div class="quest-head-l">
+        <div class="quest-icon">03</div>
+        <div>
+          <h3>Family Care Operations</h3>
+          <div class="qmeta">Private Family Care · Apr 2020 – Apr 2021</div>
+        </div>
+      </div>
+      <span class="chevron">▾</span>
+    </summary>
+    <div class="quest-body">
+      <ul>
+        <li>Managed medication routines, meals, household tasks, scheduling and safety monitoring while adapting to changing needs.</li>
+      </ul>
+      <div class="quest-skills"><span>Adaptability</span><span>Independent Responsibility</span></div>
+    </div>
+  </details>
+</section>
+
+<section id="side-quests" class="wrap">
+  <div class="section-head">
+    <div class="eyebrow">Side Quests</div>
+    <h2>Systems built off the clock</h2>
+  </div>
+  <div class="sq-grid">
+    <div class="sq-card">
+      <div class="sqtag">System Build</div>
+      <h4>Fantasy League Engine</h4>
+      <p>Python + Selenium scraper feeding a live GitHub Pages dashboard: scoring logic, tie handling, rankings and history.</p>
+      <span class="live" style="color:var(--text-faint); font-weight:500;">private league tool</span>
+      <div class="skills-gained">SKILLS GAINED · Spreadsheet engineering, logic design, QA</div>
+    </div>
+    <div class="sq-card">
+      <div class="sqtag">Client Build</div>
+      <h4>Booth Inventory Tracker</h4>
+      <p>Supabase-backed inventory app built for a family member's antique-booth business.</p>
+      <a class="live" href="https://lgw2222.github.io/booth" target="_blank" rel="noopener">lgw2222.github.io/booth →</a>
+      <div class="skills-gained">SKILLS GAINED · Database CRUD, inventory systems</div>
+    </div>
+    <div class="sq-card">
+      <div class="sqtag">Client Build</div>
+      <h4>EliteVB Coaching Site</h4>
+      <p>Full business website with a Supabase-backed coach dashboard, built end-to-end for a client.</p>
+      <a class="live" href="https://elitevb.netlify.app" target="_blank" rel="noopener">elitevb.netlify.app →</a>
+      <div class="skills-gained">SKILLS GAINED · Client delivery, full-stack integration</div>
+    </div>
+    <div class="sq-card">
+      <div class="sqtag">AI Tooling</div>
+      <h4>Cutout Studio</h4>
+      <p>AI-assisted background-removal tool with a flood-fill mode, built for a print-on-demand workflow.</p>
+      <span class="live" style="color:var(--text-faint); font-weight:500;">live link: ask Garrott</span>
+      <div class="skills-gained">SKILLS GAINED · Applied AI, workflow automation</div>
+    </div>
+    <div class="sq-card">
+      <div class="sqtag">Platform</div>
+      <h4>GitHub Pages Launcher</h4>
+      <p>A deployment tool for shipping and syncing his own GitHub Pages projects, with Firebase cross-device sync.</p>
+      <span class="live" style="color:var(--text-faint); font-weight:500;">live link: ask Garrott</span>
+      <div class="skills-gained">SKILLS GAINED · Tooling, infrastructure thinking</div>
+    </div>
+    <div class="sq-card">
+      <div class="sqtag">App Studio</div>
+      <h4>Real-Time App Studio</h4>
+      <p>A dozen-plus single-file web apps with Firebase real-time backends — draft rooms, party games, collection trackers.</p>
+      <span class="live" style="color:var(--text-faint); font-weight:500;">live link: ask Garrott</span>
+      <div class="skills-gained">SKILLS GAINED · Real-time architecture, rapid prototyping</div>
+    </div>
+  </div>
+</section>
+
+<section id="achievements" class="wrap">
+  <div class="section-head">
+    <div class="eyebrow">Achievements</div>
+    <h2>Unlocked</h2>
+  </div>
+  <div class="ach-grid">
+    <div class="ach-card"><div class="ach-badge">🛒</div><div><h4>MULTI-MARKETPLACE</h4><p>Shipped storefronts and listings across eBay, Shopify, Etsy and Printify.</p></div></div>
+    <div class="ach-card"><div class="ach-badge">📈</div><div><h4>SYSTEM BUILDER</h4><p>Designed a live-data scoring and ranking pipeline for a fantasy sports league.</p></div></div>
+    <div class="ach-card"><div class="ach-badge">🧭</div><div><h4>FIELD OPERATIONS</h4><p>Supported disaster recovery work across 5 Kentucky counties.</p></div></div>
+    <div class="ach-card"><div class="ach-badge">🏛️</div><div><h4>FEDERAL PRESENTATION</h4><p>Built material presented to FEMA on program impact and community needs.</p></div></div>
+    <div class="ach-card"><div class="ach-badge">⚡</div><div><h4>SELF-TAUGHT BUILDER</h4><p>Learned Firebase, Supabase, Three.js and Python/Selenium independently to ship a dozen-plus web tools.</p></div></div>
+    <div class="ach-card"><div class="ach-badge">🧩</div><div><h4>CROSS-FUNCTIONAL</h4><p>Verified experience spanning e-commerce, data, program coordination, content and technical ops.</p></div></div>
+  </div>
+</section>
+
+<footer id="contact" class="wrap">
+  <div class="eyebrow" style="justify-content:center; display:flex;">Contact</div>
+  <h2 style="margin-top:12px;">Open to remote digital operations &amp; e-commerce roles.</h2>
+  <div class="contact-row">
+    <a class="link" href="mailto:garrott1994@gmail.com">garrott1994@gmail.com</a>
+    <a class="link" href="tel:+12703480960">270-348-0960</a>
+    <a class="link" href="resume.pdf" target="_blank" rel="noopener">Download résumé</a>
+  </div>
+  <div class="foot-note">Hopkinsville, KY · Prefer a standard layout? See the plain portfolio site.</div>
+</footer>
+
+<script>
+  const toggle = document.getElementById('navToggle');
+  const links = document.getElementById('navlinks');
+  toggle.addEventListener('click', () => links.classList.toggle('open'));
+  links.querySelectorAll('a').forEach(a => a.addEventListener('click', () => links.classList.remove('open')));
+
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('unlocked'); });
+  }, { threshold: 0.2 });
+  document.querySelectorAll('.ach-card').forEach(el => io.observe(el));
+</script>
+</body>
+</html>
